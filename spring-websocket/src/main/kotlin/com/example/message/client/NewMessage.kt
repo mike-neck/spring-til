@@ -15,6 +15,6 @@
  */
 package com.example.message.client
 
-class NewMessage(
-        var text: String
+data class NewMessage(
+        var text: String = ""
 )

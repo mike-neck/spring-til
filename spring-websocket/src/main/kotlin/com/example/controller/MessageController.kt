@@ -15,8 +15,10 @@
  */
 package com.example.controller
 
+import com.example.logger
 import com.example.message.client.NewMessage
 import com.example.message.server.Message
+import org.slf4j.Logger
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.stereotype.Controller
@@ -24,10 +26,15 @@ import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 @Controller
-open class MessageController {
+class MessageController {
 
     @MessageMapping("/message")
     @SendTo("/contents/message")
-    open fun message(newMessage: NewMessage): Message = TimeUnit.SECONDS.sleep(2L)
+    fun message(newMessage: NewMessage): Message = TimeUnit.SECONDS.sleep(2L)
+            .apply { logger.debug(newMessage.toString()) }
             .let { Message(LocalDateTime.now(), newMessage.text) }
+
+    companion object {
+        val logger: Logger = logger<MessageController>()
+    }
 }

@@ -17,4 +17,7 @@ package com.example.message.server
 
 import java.time.LocalDateTime
 
-class Message(val now: LocalDateTime, val text: String)
+data class Message(
+        val now: LocalDateTime
+        , val text: String
+)

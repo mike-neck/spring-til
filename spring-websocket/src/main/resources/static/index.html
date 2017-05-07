@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket sample</title>
+</head>
+<body>
+<div>
+    <div id="for-control">
+        <button id="connect" type="button">接続</button>
+        <button id="disconnect" type="button" disabled="disabled">切断</button>
+    </div>
+    <div id="for-input" style="visibility: hidden;">
+        <label for="message">メッセージ</label>
+        <input type="text" id="message"/>
+        <button id="send-message" type="button">送信</button>
+    </div>
+    <div id="for-show-message">
+    </div>
+</div>
+<script type="application/javascript" src="/webjars/sockjs-client/1.0.2/sockjs.min.js"></script>
+<script type="application/javascript" src="/webjars/stomp-websocket/2.3.3/stomp.min.js"></script>
+<script type="application/javascript">
+(function () {
+    var stompClient = null,
+        elem = function (id) {
+            if (typeof id !== "string") return null;
+            return document.getElementById(id);
+        },
+        showMessage = function (msg) {
+            var dialog = elem("for-show-message");
+            var para = document.createElement("p");
+            para.style.wordWrap = "break-word";
+            para.appendChild(document.createTextNode(msg));
+            dialog.appendChild(para);
+        },
+        setConnected = function (con) {
+            if (typeof con !== "boolean") return;
+            elem("connect").disabled = con;
+            elem("disconnect").disabled = !con;
+            elem("for-input").style.visibility = con? "visible": "hidden";
+        },
+        connect = function () {
+            var socket = new SockJS("/message");
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                setConnected(true);
+                showMessage("サーバーに接続 : " + frame);
+                stompClient.subscribe("/contents/message", function (msg) {
+                    console.log(msg);
+                    var object = JSON.parse(msg.body);
+                    showMessage("サーバーからメッセージ受信[" + object.now + ", " + object.text + "]");
+                });
+            });
+        },
+        disconnect = function () {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            setConnected(false);
+            showMessage("サーバーから切断");
+        },
+        sendMessage = function () {
+            if (stompClient === null) return;
+            var message = elem("message").value;
+            stompClient.send("/app/message", {}, JSON.stringify({ text: message }));
+            showMessage("サーバーへメッセージ送信");
+        };
+    elem("connect").onclick = connect;
+    elem("disconnect").onclick = disconnect;
+    elem("send-message").onclick = sendMessage;
+})();
+</script>
+</body>
+</html>
