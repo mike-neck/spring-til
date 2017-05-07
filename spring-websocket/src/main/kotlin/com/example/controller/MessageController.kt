@@ -13,8 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.message.server
+package com.example.controller
 
+import com.example.message.client.NewMessage
+import com.example.message.server.Message
+import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.handler.annotation.SendTo
+import org.springframework.stereotype.Controller
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 
-class Message(val now: LocalDateTime, val text: String)
+@Controller
+open class MessageController {
+
+    @MessageMapping("/message")
+    @SendTo("/contents/message")
+    open fun message(newMessage: NewMessage): Message = TimeUnit.SECONDS.sleep(2L)
+            .let { Message(LocalDateTime.now(), newMessage.text) }
+}
