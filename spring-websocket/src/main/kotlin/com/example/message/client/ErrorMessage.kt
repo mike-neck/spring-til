@@ -13,16 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.message.server
+package com.example.message.client
 
-data class Message<out T>(val type: ResType, val item: T) {
-    companion object {
-        fun <T> newMessage(msg: T) = Message(ResType.NewMessage, msg)
-        fun <T> errorMessage(msg: T) = Message(ResType.ErrorMessage, msg)
-    }
-}
-
-enum class ResType {
-    NewMessage,
-    ErrorMessage
-}
+data class ErrorMessage (var errorMessage: String = "")

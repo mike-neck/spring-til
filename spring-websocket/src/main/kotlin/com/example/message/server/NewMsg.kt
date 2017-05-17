@@ -15,14 +15,9 @@
  */
 package com.example.message.server
 
-data class Message<out T>(val type: ResType, val item: T) {
-    companion object {
-        fun <T> newMessage(msg: T) = Message(ResType.NewMessage, msg)
-        fun <T> errorMessage(msg: T) = Message(ResType.ErrorMessage, msg)
-    }
-}
+import java.time.LocalDateTime
 
-enum class ResType {
-    NewMessage,
-    ErrorMessage
-}
+data class NewMsg(
+        val now: LocalDateTime
+        , val text: String
+)

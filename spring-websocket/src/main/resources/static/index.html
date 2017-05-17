@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>WebSocket sample</title>
+    <style>
+#for-input fieldset {
+    border: solid 2px navy;
+}
+    </style>
 </head>
 <body>
 <div>
@@ -11,9 +16,16 @@
         <button id="disconnect" type="button" disabled="disabled">切断</button>
     </div>
     <div id="for-input" style="visibility: hidden;">
-        <label for="message">メッセージ</label>
-        <input type="text" id="message"/>
-        <button id="send-message" type="button">送信</button>
+        <fieldset>
+            <legend><label for="message">メッセージ</label></legend>
+            <input type="text" id="message"/>
+            <button id="send-message" type="button">送信</button>
+        </fieldset>
+        <fieldset>
+            <legend><label for="error-message">エラー</label></legend>
+            <input type="text" id="error-message" />
+            <button id="send-error" type="button">エラー</button>
+        </fieldset>
     </div>
     <div id="for-show-message">
     </div>
@@ -22,23 +34,50 @@
 <script type="application/javascript" src="/webjars/stomp-websocket/2.3.3/stomp.min.js"></script>
 <script type="application/javascript">
 (function () {
+    //noinspection JSUnusedLocalSymbols,UnnecessaryLocalVariableJS
     var stompClient = null,
+        Message = function () {
+            this.type = "";
+            this.item = {
+                now: "",
+                text: ""
+            };
+        },
         elem = function (id) {
             if (typeof id !== "string") return null;
             return document.getElementById(id);
         },
-        showMessage = function (msg) {
+        show = function (msg, paragraph) {
             var dialog = elem("for-show-message");
+            dialog.appendChild(paragraph);
+        },
+        showMessage = function (msg) {
             var para = document.createElement("p");
             para.style.wordWrap = "break-word";
             para.appendChild(document.createTextNode(msg));
-            dialog.appendChild(para);
+            show(msg, para);
+        },
+        showError = function (msg) {
+            var para = document.createElement("p");
+            para.style.wordWrap = "break-word";
+            para.style.color = "#ff0000";
+            para.appendChild(document.createTextNode(msg));
+            show(msg, para);
         },
         setConnected = function (con) {
             if (typeof con !== "boolean") return;
             elem("connect").disabled = con;
             elem("disconnect").disabled = !con;
             elem("for-input").style.visibility = con? "visible": "hidden";
+        },
+        handleMessage = function(msg) {
+            console.log(msg);
+            var object = JSON.parse(msg.body);
+            if (object.type === "NewMessage") {
+                showMessage("サーバーからメッセージ受信[" + object.item.now + ", " + object.item.text + "]");
+            } else if (object.type === "ErrorMessage") {
+                showError("サーバーからエラー受診[" + object.item.now + "," + object.item.text + "]")
+            }
         },
         connect = function () {
             var socket = new SockJS("/message");
@@ -47,9 +86,7 @@
                 setConnected(true);
                 showMessage("サーバーに接続 : " + frame);
                 stompClient.subscribe("/contents/message", function (msg) {
-                    console.log(msg);
-                    var object = JSON.parse(msg.body);
-                    showMessage("サーバーからメッセージ受信[" + object.now + ", " + object.text + "]");
+                    handleMessage(msg);
                 });
             });
         },
@@ -65,10 +102,17 @@
             var message = elem("message").value;
             stompClient.send("/app/message", {}, JSON.stringify({ text: message }));
             showMessage("サーバーへメッセージ送信");
+        },
+        sendError = function () {
+            if (stompClient === null) return;
+            var message = elem("error-message").value;
+            stompClient.send("/app/error-message", {}, JSON.stringify({ errorMessage: message }));
+            showMessage("サーバーへメッセージ送信[error]");
         };
     elem("connect").onclick = connect;
     elem("disconnect").onclick = disconnect;
     elem("send-message").onclick = sendMessage;
+    elem("send-error").onclick = sendError;
 })();
 </script>
 </body>

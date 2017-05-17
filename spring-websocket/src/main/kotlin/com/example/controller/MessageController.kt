@@ -16,8 +16,11 @@
 package com.example.controller
 
 import com.example.logger
+import com.example.message.client.ErrorMessage
 import com.example.message.client.NewMessage
+import com.example.message.server.ErrorMsg
 import com.example.message.server.Message
+import com.example.message.server.NewMsg
 import org.slf4j.Logger
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
@@ -30,9 +33,17 @@ class MessageController {
 
     @MessageMapping("/message")
     @SendTo("/contents/message")
-    fun message(newMessage: NewMessage): Message = TimeUnit.SECONDS.sleep(2L)
+    fun message(newMessage: NewMessage): Message<NewMsg> = TimeUnit.SECONDS.sleep(2L)
             .apply { logger.debug(newMessage.toString()) }
-            .let { Message(LocalDateTime.now(), newMessage.text) }
+            .let { NewMsg(LocalDateTime.now(), newMessage.text) }
+            .let { Message.newMessage(it) }
+
+    @MessageMapping("/error-message")
+    @SendTo("/contents/message")
+    fun errorMessage(error: ErrorMessage): Message<ErrorMsg> = TimeUnit.SECONDS.sleep(2L)
+            .apply { logger.debug(error.toString()) }
+            .let { ErrorMsg(LocalDateTime.now(), error.errorMessage) }
+            .let { Message.errorMessage(it) }
 
     companion object {
         val logger: Logger = logger<MessageController>()
