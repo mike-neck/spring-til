@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://dl.bintray.com/kotlin/kotlin-dev/'
+        }
+    }
+    def springBootVersion = "1.5.8.RELEASE"
+    def kotlinVersion = "1.1.61"
+
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id.startsWith('kotlin-spring')) {
+                useModule("org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion")
+            } else if (requested.id.id == "org.springframework.boot") {
+                useModule("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+            } else if (requested.id.id.startsWith('org.jetbrains.kotlin')) {
+                useModule "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:$kotlinVersion"
+            }
+        }
+    }
+}
+
+rootProject.name = "oauth-sample-app"
