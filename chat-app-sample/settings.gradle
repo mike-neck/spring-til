@@ -1,0 +1,4 @@
+rootProject.name = 'chat-app-sample'
+include "api"
+include "web"
+include "ws"
