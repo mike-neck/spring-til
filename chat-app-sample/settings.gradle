@@ -1,6 +1,4 @@
 rootProject.name = 'chat-app-sample'
-include "common"
-include "database"
 include "api"
-include "web"
-include "ws"
+include "database"
+include "websocket"
