@@ -28,7 +28,9 @@ ext {
 }
 
 dependencies {
+    compileOnly('org.jetbrains:annotations:13.0')
 	compile('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.8.10'
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
