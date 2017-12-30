@@ -26,4 +26,11 @@ public class UserJson {
 
     private Long userId;
     private String username;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Request {
+        private String username;
+    }
 }

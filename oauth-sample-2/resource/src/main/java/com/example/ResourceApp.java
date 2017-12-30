@@ -25,10 +25,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.hal.Jackson2HalModule;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @SpringBootApplication
@@ -58,7 +60,11 @@ public class ResourceApp {
     private MappingJackson2HttpMessageConverter halJsonMappingJackson2HttpMessageConverter() {
         final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(
                 halJsonObjectMapperBuilder().build());
-        converter.setSupportedMediaTypes(Collections.singletonList(MediaTypes.HAL_JSON));
+        converter.setSupportedMediaTypes(
+                Arrays.asList(
+                        MediaTypes.HAL_JSON,
+                        MediaType.APPLICATION_JSON_UTF8,
+                        MediaType.APPLICATION_JSON));
         return converter;
     }
 

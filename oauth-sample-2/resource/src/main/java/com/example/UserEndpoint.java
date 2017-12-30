@@ -26,13 +26,13 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.hal.Jackson2HalModule;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +43,8 @@ import static java.util.stream.Collectors.toList;
 @RequestMapping(value = "users", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class UserEndpoint {
 
+    private static final String USER_END_POINT = "http://localhost:5000/db-app/users";
+
     private final RestTemplate restTemplate;
 
     public UserEndpoint(@HalJson final RestTemplate restTemplate) {
@@ -52,7 +54,7 @@ public class UserEndpoint {
     @GetMapping
     List<UserJson> getUsers() {
         final ResponseEntity<PagedResources<Resource<UserEntity>>> entity =
-                restTemplate.exchange("http://localhost:5000/db-app/users",
+                restTemplate.exchange(USER_END_POINT,
                         HttpMethod.GET,
                         null,
                         new ParameterizedTypeReference<PagedResources<Resource<UserEntity>>>() {});
@@ -83,5 +85,36 @@ public class UserEndpoint {
         final List<UserEntity> userEntities = contents.stream()
                 .map(Resource::getContent)
                 .collect(toList());
+    }
+
+    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    UserJson createUserWithJson(@RequestBody final UserJson.Request request) {
+        final UserEntity userEntity = new UserEntity(request.getUsername());
+        final ResponseEntity<Resource<UserEntity>> responseEntity = postUserToDbApp(userEntity);
+        return userJson(responseEntity);
+    }
+
+    @PostMapping(consumes = { MediaType.APPLICATION_FORM_URLENCODED_VALUE }, params = { "username" })
+    UserJson createUserWithForm(@RequestParam(value = "username") final String username) {
+        final UserEntity userEntity = new UserEntity(username);
+        final ResponseEntity<Resource<UserEntity>> responseEntity = postUserToDbApp(userEntity);
+        return userJson(responseEntity);
+    }
+
+    private ResponseEntity<Resource<UserEntity>> postUserToDbApp(final UserEntity userEntity) {
+        final RequestEntity<UserEntity> req = RequestEntity.post(URI.create(USER_END_POINT))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(userEntity);
+        return restTemplate.exchange(
+                USER_END_POINT,
+                HttpMethod.POST,
+                req,
+                new ParameterizedTypeReference<Resource<UserEntity>>() {});
+    }
+
+    private UserJson userJson(final ResponseEntity<Resource<UserEntity>> responseEntity) {
+        final Resource<UserEntity> resource = responseEntity.getBody();
+        return new UserEntity.Resource(resource.getContent().getName(), resource.getLink("self").getHref())
+                .toJson();
     }
 }
