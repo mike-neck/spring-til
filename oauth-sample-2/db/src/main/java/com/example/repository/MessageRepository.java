@@ -16,13 +16,18 @@
 package com.example.repository;
 
 import com.example.data.Message;
+import com.example.data.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MessageRepository extends PagingAndSortingRepository<Message, Long> {
 
-//    Page<Message> findByUserIdOrderByCreatedDesc(final Long userId, final Pageable pageable);
+    @RestResource(path = "by_user", rel = "by_user", description = @Description("Find messages by user."))
+    Page<Message> findByUserOrderByCreatedDesc(@Param("user") final User user, final Pageable pageable);
 }

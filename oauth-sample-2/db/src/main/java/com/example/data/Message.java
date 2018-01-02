@@ -66,6 +66,12 @@ public class Message implements Serializable {
         this.user = user;
     }
 
+    @javax.persistence.Transient
+    @org.springframework.data.annotation.Transient
+    public Long getUserId() {
+        return user.getId();
+    }
+
     public String getText() {
         return text;
     }
