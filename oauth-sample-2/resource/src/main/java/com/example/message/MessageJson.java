@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Shinya Mochida
+ * Copyright 2018 Shinya Mochida
  *
  * Licensed under the Apache License,Version2.0(the"License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.entity;
+package com.example.message;
 
-import com.example.user.UserJson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEntity {
+public class MessageJson {
 
-    private String name;
-
-    @Data
-    @RequiredArgsConstructor
-    public static class Resource {
-        private final String name;
-        private final String self;
-
-        private long extractId() {
-            final int index = self.lastIndexOf('/');
-            final String id = self.substring(index + 1);
-            return Long.parseLong(id);
-        }
-
-        public UserJson toJson() {
-            return new UserJson(extractId(), name);
-        }
-    }
+    private Long messageId;
+    private Long userId;
+    private String text;
+    private LocalDateTime createdAt;
 }

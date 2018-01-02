@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Shinya Mochida
+ * Copyright 2018 Shinya Mochida
  *
  * Licensed under the Apache License,Version2.0(the"License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,39 @@
  */
 package com.example.entity;
 
-import com.example.user.UserJson;
+import com.example.message.MessageJson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEntity {
+public class MessageEntity {
 
-    private String name;
+    private String text;
+    private LocalDateTime created;
+    private Long userId;
 
     @Data
     @RequiredArgsConstructor
-    public static class Resource {
-        private final String name;
-        private final String self;
+    public static class WithLink {
+        private final String  text;
+        private final Long userId;
+        private final LocalDateTime created;
+        private final String selfUrl;
 
-        private long extractId() {
-            final int index = self.lastIndexOf('/');
-            final String id = self.substring(index + 1);
-            return Long.parseLong(id);
+        public WithLink (final MessageEntity entity, String selfUrl) {
+            this (entity.text, entity.userId, entity.created, selfUrl);
         }
 
-        public UserJson toJson() {
-            return new UserJson(extractId(), name);
+        public MessageJson toJson() {
+            final int index = selfUrl.lastIndexOf('/');
+            final String id = selfUrl.substring(index + 1);
+            return new MessageJson(Long.getLong(id), userId, text, created);
         }
     }
 }
