@@ -20,6 +20,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Resource;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +33,11 @@ public class MessageEntity {
     private String text;
     private LocalDateTime created;
     private Long userId;
+
+    public static WithLink withLink(final ResponseEntity<Resource<MessageEntity>> responseEntity) {
+        final Resource<MessageEntity> resource = responseEntity.getBody();
+        return new WithLink(resource.getContent(), resource.getLink("self").getHref());
+    }
 
     @Data
     @RequiredArgsConstructor
@@ -48,6 +55,22 @@ public class MessageEntity {
             final int index = selfUrl.lastIndexOf('/');
             final String id = selfUrl.substring(index + 1);
             return new MessageJson(Long.getLong(id), userId, text, created);
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Request {
+
+        private static final String USER_URL = "http://localhost:5000/db-app/users";
+
+        private String text;
+        private String user;
+
+        public Request(final String text, final long userId) {
+            this.text = text;
+            this.user = String.format("%s/%d", USER_URL, userId);
         }
     }
 }

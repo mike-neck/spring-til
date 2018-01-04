@@ -15,6 +15,7 @@
  */
 package com.example.message;
 
+import com.example.entity.MessageEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,4 +31,16 @@ public class MessageJson {
     private Long userId;
     private String text;
     private LocalDateTime createdAt;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Request {
+        private Long userId;
+        private String text;
+
+        public MessageEntity.Request toEntity() {
+            return new MessageEntity.Request(text, userId);
+        }
+    }
 }

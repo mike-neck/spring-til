@@ -18,19 +18,20 @@ package com.example.message;
 import com.example.HalJson;
 import com.example.Paging;
 import com.example.entity.MessageEntity;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.TypeReferences;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
@@ -61,5 +62,29 @@ public class MessageEndpoint {
                 .collect(toList());
         final PagedResources.PageMetadata metadata = body.getMetadata();
         return new Paging<>(messages, ((int) metadata.getSize()), metadata.getTotalElements(), ((int) metadata.getTotalPages()), ((int) metadata.getNumber()));
+    }
+
+    @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    MessageJson createMessage(@RequestParam(name = "text") final String text, @RequestParam(name = "user_id") final Long userId) {
+        Objects.requireNonNull(text);
+        Objects.requireNonNull(userId);
+        final MessageEntity.Request messageEntity = new MessageEntity.Request(text, userId);
+        final ResponseEntity<Resource<MessageEntity>> responseEntity = postMessageEntityToDbApp(messageEntity);
+        return MessageEntity.withLink(responseEntity).toJson();
+    }
+
+    private ResponseEntity<Resource<MessageEntity>> postMessageEntityToDbApp(final MessageEntity.Request messageEntity) {
+        final RequestEntity<MessageEntity.Request> request = RequestEntity.post(URI.create(MESSAGES_END_POINT))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(messageEntity);
+        return restTemplate.exchange(MESSAGES_END_POINT, HttpMethod.POST, request,
+                new ParameterizedTypeReference<Resource<MessageEntity>>() {});
+    }
+
+    @PostMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    MessageJson createMessage(@RequestBody final MessageJson.Request request) {
+        Objects.requireNonNull(request);
+        final ResponseEntity<Resource<MessageEntity>> response = postMessageEntityToDbApp(request.toEntity());
+        return MessageEntity.withLink(response).toJson();
     }
 }
