@@ -17,8 +17,15 @@ package com.example.repository;
 
 import com.example.data.User;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {
+
+    @RestResource(path = "by_name_and_password")
+    Optional<User> findByNameAndPassword(@Param("name") final String name, @Param("password") final String password);
 }
