@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Spring OAuth2 Sample Web Interface[ログイン]</title>
+</head>
+<body>
+<fieldset>
+    <legend>ログイン</legend>
+    <form method="post" th:action="@{/login}">
+        <dl>
+            <dt><label for="username">ユーザー名</label></dt>
+            <dd><input type="text" id="username" placeholder="ユーザー名" name="username" required="required"/></dd>
+            <dt><label for="password">パスワード</label></dt>
+            <dd><input id="password" name="password" type="password" /></dd>
+        </dl>
+        <button type="submit" value="ログイン">ログイン</button>
+    </form>
+</fieldset>
+</body>
+</html>
