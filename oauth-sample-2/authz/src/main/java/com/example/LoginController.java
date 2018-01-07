@@ -15,8 +15,10 @@
  */
 package com.example;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class LoginController {
@@ -27,7 +29,10 @@ public class LoginController {
     }
 
     @GetMapping(path = { "/", "home" })
-    String home() {
-        return "home";
+    ModelAndView home(@AuthenticationPrincipal final AuthenticatedUser user) {
+        if (user == null) {
+            return new ModelAndView("home");
+        }
+        return new ModelAndView("home", "user", new UserEntity.WithoutPassword(user.getUserId(), user.getUsername(), user.getAuthorityStrings()));
     }
 }

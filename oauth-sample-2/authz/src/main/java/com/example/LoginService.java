@@ -17,7 +17,6 @@ package com.example;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -46,7 +45,7 @@ public class LoginService implements UserDetailsService {
         try {
             final ResponseEntity<UserEntity> response = restTemplate.getForEntity(String.format("%s?username={username}", USER_ENDPOINT), UserEntity.class, query);
             final UserEntity user = response.getBody();
-            return new User(user.getUsername(), user.getPassword(), user.getAuthorities());
+            return new AuthenticatedUser(user);
         } catch (RestClientException e) {
             throw new UsernameNotFoundException("user [" + username + "] not found.");
         }

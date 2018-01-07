@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<!--/*@thymesVar id="user" type="com.example.UserEntity.WithoutPassword"*/-->
 <head>
     <meta charset="UTF-8"/>
     <title>Spring OAuth2 Sample Web Interface</title>
 </head>
 <body>
 <h1>It works!</h1>
-<a th:href="@{/login}">ログインフォーム</a>
+<a th:if="${user == null}" th:href="@{/login}">ログインフォーム</a>
+<div th:if="${user != null}">
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="ログアウト"/>
+    </form>
+    <ul>
+        <li>ユーザー : <span th:text="${user.username}">ユーザー名</span></li>
+        <li>ユーザーID : <span th:text="${user.userId}">1000000</span></li>
+        <li th:each="authority: ${user.authorities}" th:text="${authority}"></li>
+    </ul>
+</div>
 </body>
 </html>

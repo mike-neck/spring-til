@@ -18,6 +18,7 @@ package com.example;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
@@ -34,9 +35,17 @@ public class UserEntity {
     private String password;
     private Set<String> authorities;
 
-    public Set<GrantedAuthority> getAuthorities() {
+    public Set<GrantedAuthority> getGrantedAuthorities() {
         return authorities.stream()
                 .map(a -> (GrantedAuthority) () -> a)
                 .collect(toSet());
+    }
+
+    @Data
+    @RequiredArgsConstructor
+    public static class WithoutPassword {
+        private final Long userId;
+        private final String username;
+        private final Set<String> authorities;
     }
 }

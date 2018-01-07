@@ -86,7 +86,10 @@ public class AuthzApp extends WebSecurityConfigurerAdapter {
 
     @Bean
     RestTemplate restTemplate() {
-        return new RestTemplate();
+        final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(
+                new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).setPropertyNamingStrategy(
+                        PropertyNamingStrategy.SNAKE_CASE).registerModule(new JavaTimeModule()));
+        return new RestTemplate(Collections.singletonList(converter));
     }
 
     @Override
@@ -103,7 +106,7 @@ public class AuthzApp extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/loginForm")
+                .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .failureUrl("/login?error")
                 .defaultSuccessUrl("/home")
@@ -112,6 +115,7 @@ public class AuthzApp extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .logout()
-                .permitAll();
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/home");
     }
 }
