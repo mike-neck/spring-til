@@ -19,10 +19,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 @Entity
 @Table(name = "users")
-@JsonIgnoreProperties({ "password" })
+@JsonIgnoreProperties({ "password", "authorities" })
 public class User implements Serializable {
 
     public static final long serialVersionUID = 1L;
@@ -35,12 +38,19 @@ public class User implements Serializable {
 
     private String password;
 
+    @ElementCollection(targetClass = Authority.class)
+    @JoinTable(name = "user_authorities", joinColumns = @JoinColumn(name = "user_id", nullable = false))
+    @Column(name = "authority", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<Authority> authorities;
+
     public User() {
     }
 
     public User(final String name, final String password) {
         this.name = name;
         this.password = password;
+        this.authorities = Authority.defaultSet();
     }
 
     public Long getId() {
@@ -65,5 +75,19 @@ public class User implements Serializable {
 
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(final Set<Authority> authorities) {
+        this.authorities = authorities;
+    }
+
+    public Set<String> getAuthoritiesAsString() {
+        return authorities.stream()
+                .map(Enum::name)
+                .collect(toSet());
     }
 }

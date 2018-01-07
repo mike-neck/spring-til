@@ -19,3 +19,10 @@ CREATE TABLE users (
 
 ALTER TABLE messages
   ADD CONSTRAINT fk_messages_user FOREIGN KEY (user_id) REFERENCES users(id);
+
+CREATE TABLE user_authorities(
+  user_id   BIGINT NOT NULL ,
+  authority VARCHAR(30) NOT NULL ,
+  PRIMARY KEY (user_id, authority),
+  CONSTRAINT fk_user_authorities_users FOREIGN KEY (user_id) REFERENCES users(id)
+);

@@ -17,12 +17,11 @@ package com.example;
 
 import com.example.entity.UserForInternalUseEntity;
 import com.example.repository.UserRepository;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "user-internal")
@@ -35,8 +34,10 @@ public class UserController {
     }
 
     @GetMapping
-    Optional<UserForInternalUseEntity> getUserForInternalUse(@RequestParam("username") final String username) {
+    UserForInternalUseEntity getUserForInternalUse(@RequestParam("username") final String username) {
         return userRepository.findByName(username)
-                .map(u -> new UserForInternalUseEntity(u.getId(), u.getName(), u.getPassword()));
+                .map(u -> new UserForInternalUseEntity(u.getId(), u.getName(), u.getPassword(),
+                        u.getAuthoritiesAsString()))
+                .orElseThrow(() -> new ResourceNotFoundException(username + " does not exist."));
     }
 }
