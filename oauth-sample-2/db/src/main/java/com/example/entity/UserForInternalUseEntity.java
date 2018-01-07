@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Shinya Mochida
+ * Copyright 2018 Shinya Mochida
  *
  * Licensed under the Apache License,Version2.0(the"License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.repository;
+package com.example.entity;
 
-import com.example.data.User;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.stereotype.Repository;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Optional;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserForInternalUseEntity {
 
-@Repository
-public interface UserRepository extends PagingAndSortingRepository<User, Long> {
-
-    Optional<User> findByName(final String name);
+    private Long userId;
+    private String username;
+    private String password;
 }
