@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.repository;
-
-import com.example.data.AuthorizationCode;
+package com.example.data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -29,7 +27,7 @@ public class Tokens {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "authorization_code")
+    @JoinColumn(name = "auth_code_id")
     private AuthorizationCode code;
 
     @Column(nullable = false)

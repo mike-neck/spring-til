@@ -15,12 +15,30 @@
  */
 package com.example.data;
 
-public enum  Scope {
+import java.util.Arrays;
+import java.util.function.Predicate;
 
-    READ_MESSAGE,
-    WRITE_MESSAGE,
-    READ_PROFILE,
-    WRITE_PROFILE;
+public enum Scope {
 
-    
+    READ_MESSAGE("read:message"),
+    WRITE_MESSAGE("write:message"),
+    READ_PROFILE("read:profile"),
+    WRITE_PROFILE("write:profile");
+
+    private final String value;
+
+    Scope(final String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static Scope fromString(final String value) {
+        final Predicate<Scope> nameMatches = s -> s.value.equals(value);
+        return Arrays.stream(values()).filter(nameMatches)
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
+    }
 }
