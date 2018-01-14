@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.repository;
+package com.example.entity;
 
-import com.example.data.Application;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Optional;
+import java.util.Set;
 
-public interface ApplicationRepository extends JpaRepository<Application, String> {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ApplicationEntity {
 
-    @Query("select app from Application app join fetch app.user join fetch app.user.authorities where app.clientId = :clientId")
-    Optional<Application> findApplication(@Param("clientId") final String clientId);
+    private String clientId;
+
+    private String clientSecret;
+
+    private Set<String> scopes;
+
+    private Set<String> authority;
+
+    private String redirectUri;
 }

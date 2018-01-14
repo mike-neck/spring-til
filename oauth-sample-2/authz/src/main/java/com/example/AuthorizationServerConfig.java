@@ -15,12 +15,25 @@
  */
 package com.example;
 
+import com.example.auth.ClientDetailsServiceImpl;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 
+@Configuration
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
+
+    private final ClientDetailsServiceImpl clientDetailsService;
+    private final TokenStore tokenStore;
+
+    public AuthorizationServerConfig(final ClientDetailsServiceImpl clientDetailsService,
+            final TokenStore tokenStore) {
+        this.clientDetailsService = clientDetailsService;
+        this.tokenStore = tokenStore;
+    }
 
     @Override
     public void configure(final AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -28,11 +41,10 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(final ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.withClientDetails(new )
+        clients.withClientDetails(clientDetailsService);
     }
 
     @Override
     public void configure(final AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        
     }
 }

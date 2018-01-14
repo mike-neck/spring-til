@@ -16,7 +16,10 @@
 package com.example.data;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Predicate;
+
+import static java.util.stream.Collectors.toSet;
 
 public enum Scope {
 
@@ -40,5 +43,11 @@ public enum Scope {
         return Arrays.stream(values()).filter(nameMatches)
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    public static Set<String> allAsString() {
+        return Arrays.stream(values())
+                .map(Scope::getValue)
+                .collect(toSet());
     }
 }
