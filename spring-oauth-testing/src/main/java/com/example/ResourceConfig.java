@@ -50,9 +50,11 @@ public class ResourceConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .anyRequest().authenticated()
                 .antMatchers("/users/**").access("#oauth2.hasScope(T(com.example.jpa.Scope).USER.asString())")
-                .antMatchers("/messages/**").access("#oauth2.hasScope(T(com.example.jpa.Scope).MESSAGE.asString())");
+                .antMatchers("/messages/**").access("#oauth2.hasScope(T(com.example.jpa.Scope).MESSAGE.asString())")
+                .antMatchers("/", "/lib/*", "/images/*", "/css/*", "/swagger-ui.js", "/swagger-ui.min.js", "/api-docs", "/fonts/*", "/api-docs/*",
+                        "/api-docs/default/*", "/o2c.html", "index.html", "/webjars/**", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated();
     }
 
     @Bean
