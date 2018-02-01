@@ -25,5 +25,7 @@ repositories {
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile project('config')
+    testCompile 'org.assertj:assertj-core:3.9.0'
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }
