@@ -16,7 +16,6 @@
 package com.example;
 
 import com.example.config.MyProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -29,25 +28,31 @@ import java.util.Optional;
 public class MyConfig {
 
     @Configuration
-    @ConditionalOnProperty(prefix = "my", name = "active", matchIfMissing = true)
+    @ConditionalOnProperty(value = { "my.active" }, matchIfMissing = true)
     public static class Missing {
         @Bean
-        MyActiveSupplier missingBooleanSupplier() {
-            return () -> Optional.of(Boolean.FALSE);
+        MyFileSupplier emptySupplier() {
+            return new EmptySupplier();
         }
     }
 
     @Configuration
-    @ConditionalOnProperty(prefix = "my", name = "active", havingValue = "true")
-    @EnableConfigurationProperties({ MyProperties.class })
-    public static class Active {
+    @ConditionalOnProperty(value = { "my.active" }, havingValue = "false")
+    public static class Inactive {
+
         @Bean
-        MyActiveSupplier activeBooleanSupplier(final MyProperties myProperties) {
-            return () -> Optional.ofNullable(myProperties).map(MyProperties::isActive);
+        MyFileSupplier inactiveSupplier() {
+            return new InactiveSupplier();
         }
     }
 
-    public interface MyActiveSupplier {
-        Optional<Boolean> get();
+    @Configuration
+    @ConditionalOnProperty(value = { "my.nest.file-name" })
+    public static class Active {
+
+        @Bean
+        MyFileSupplier activeSupplier(final MyProperties myProperties) {
+            return myProperties::fileName;
+        }
     }
 }

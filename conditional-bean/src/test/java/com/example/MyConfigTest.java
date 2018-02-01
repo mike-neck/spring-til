@@ -15,13 +15,10 @@
  */
 package com.example;
 
-import com.example.config.MyProperties;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -32,33 +29,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MyConfigTest {
 
     @RunWith(SpringRunner.class)
-    @TestPropertySource(properties = { "my.active=true" })
-    @ActiveProfiles({ "test" })
-    @ContextConfiguration(classes = { MyConfig.class, MyProperties.class})
-    public static class ActiveBooleanSupplier {
+    @TestPropertySource(properties = { "mm.active" })
+    @ContextConfiguration(classes = { MyConfig.class })
+    public static class MissingTest {
 
         @Autowired
-        MyConfig.MyActiveSupplier booleanSupplier;
+        MyFileSupplier myFileSupplier;
 
         @Test
         public void test() {
-            assertThat(booleanSupplier.get()).contains(true);
+            assertThat(myFileSupplier).isInstanceOf(EmptySupplier.class);
         }
     }
 
-    @Ignore
     @RunWith(SpringRunner.class)
-    @TestPropertySource(properties = { "my.action=true" })
-    @ActiveProfiles({ "test" })
-    @ContextConfiguration(classes = { MyConfig.class, MyProperties.class})
-    public static class TypoBooleanSupplier {
+    @TestPropertySource(properties = { "my.active=false" })
+    @ContextConfiguration(classes = { MyConfig.class })
+    public static class InactiveTest {
 
         @Autowired
-        MyConfig.MyActiveSupplier booleanSupplier;
+        MyFileSupplier myFileSupplier;
 
         @Test
         public void test() {
-            assertThat(booleanSupplier.get()).contains(false);
+            assertThat(myFileSupplier).isInstanceOf(InactiveSupplier.class);
+        }
+    }
+
+    @RunWith(SpringRunner.class)
+    @TestPropertySource(properties = { "my.nest.file-name=test", "my.active=true" })
+    @ContextConfiguration(classes = { MyConfig.class })
+    public static class ActiveTest {
+
+        @Autowired
+        MyFileSupplier myFileSupplier;
+
+        @Test
+        public void test() {
+            assertThat(myFileSupplier.myFile()).contains("test");
         }
     }
 }
