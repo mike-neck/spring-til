@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example;
+package com.example.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -39,7 +39,7 @@ public class User {
 
     private final Set<UserRole> roles;
 
-    static User createNew(final String username, final String password) {
+    public static User createNew(final String username, final String password) {
         final String id = UUID.randomUUID().toString();
         return new User(id, username, password, UserRole.forNormalUser());
     }

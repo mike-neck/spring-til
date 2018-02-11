@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example;
+package com.example.user;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-@Repository
-public interface UserRepository extends ReactiveCrudRepository<User, String> {
+@Service
+public class UserService {
 
-    Mono<User> findByUsername(final String username);
+    private final UserRepository userRepository;
+
+    public UserService(final UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public Mono<User> createNewUser(final String username, final String password) {
+        final User user = User.createNew(username, password);
+        return userRepository.save(user);
+    }
 }
