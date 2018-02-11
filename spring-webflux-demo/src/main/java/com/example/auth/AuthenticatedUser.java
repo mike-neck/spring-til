@@ -15,7 +15,7 @@
  */
 package com.example.auth;
 
-import com.example.user.User;
+import com.example.db.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

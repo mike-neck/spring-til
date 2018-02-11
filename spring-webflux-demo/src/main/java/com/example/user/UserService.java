@@ -15,6 +15,7 @@
  */
 package com.example.user;
 
+import com.example.db.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;

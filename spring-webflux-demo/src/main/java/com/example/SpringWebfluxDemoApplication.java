@@ -1,6 +1,6 @@
 package com.example;
 
-import com.example.user.User;
+import com.example.db.User;
 import com.example.user.UserRepository;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
