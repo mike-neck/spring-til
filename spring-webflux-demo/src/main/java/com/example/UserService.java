@@ -15,5 +15,22 @@
  */
 package com.example;
 
-public class SpringWebfluxDemoApplicationTest {
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserService(final UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public Mono<User> createNewUser(final String username, final String password) {
+        final User user = User.createNew(username, password);
+        return userRepository.save(user);
+    }
 }
