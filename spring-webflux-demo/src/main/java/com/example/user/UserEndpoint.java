@@ -13,33 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.hello;
+package com.example.user;
 
+import com.example.auth.AuthenticatedUser;
+import com.example.db.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
-public class HelloEndpoint {
+public class UserEndpoint {
+
+    private final UserService userService;
+
+    public UserEndpoint(final UserService userService) {
+        this.userService = userService;
+    }
 
     @Bean
-    RouterFunction<ServerResponse> routerFunctionForHelloEndpoint() {
-        return route(GET("/hello"), this::hello);
-    } 
+    RouterFunction<ServerResponse> userEndpointRouterFunction() {
+        return route(GET("/users/me"), this::me);
+    }
 
-    Mono<ServerResponse> hello(final ServerRequest serverRequest) {
+    private Mono<ServerResponse> me(final ServerRequest request) {
+        final Mono<User> user = request.principal()
+                .cast(UsernamePasswordAuthenticationToken.class)
+                .map(UsernamePasswordAuthenticationToken::getPrincipal)
+                .cast(AuthenticatedUser.class)
+                .log("/users/me")
+                .map(AuthenticatedUser::getUser);
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(new HelloMessage("hello", OffsetDateTime.now(ZoneId.of("Z")))), HelloMessage.class);
+                .body(user, User.class);
     }
 }

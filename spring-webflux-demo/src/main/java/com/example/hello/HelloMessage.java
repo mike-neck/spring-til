@@ -20,7 +20,7 @@ import lombok.Value;
 import java.time.OffsetDateTime;
 
 @Value
-public class Message {
+public class HelloMessage {
     final String text;
     final OffsetDateTime time;
 }

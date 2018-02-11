@@ -39,6 +39,10 @@ public class AuthenticatedUser implements UserDetails {
                 .collect(toSet());
     }
 
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();
