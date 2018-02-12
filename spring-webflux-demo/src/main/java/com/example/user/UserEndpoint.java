@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.server.csrf.CsrfToken;
+import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -40,7 +42,19 @@ public class UserEndpoint {
 
     @Bean
     RouterFunction<ServerResponse> userEndpointRouterFunction() {
-        return route(GET("/me"), this::me);
+        return route(GET("/me"), this::me)
+                .andRoute(GET("/csrf"), this::csrf);
+    }
+
+    Mono<ServerResponse> csrf(final ServerRequest request) {
+        final Mono<String> csrfToken = request.session()
+                .filter(session -> session.getAttributes().containsKey(WebSessionServerCsrfTokenRepository.class
+                        .getName().concat(".CSRF_TOKEN")))
+                .map(session -> session.getAttribute(WebSessionServerCsrfTokenRepository.class
+                        .getName().concat(".CSRF_TOKEN")))
+                .cast(CsrfToken.class)
+                .map(CsrfToken::getToken);
+        return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).body(csrfToken, String.class);
     }
 
     private Mono<ServerResponse> me(final ServerRequest request) {

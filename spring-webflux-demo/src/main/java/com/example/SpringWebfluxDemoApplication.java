@@ -1,6 +1,8 @@
 package com.example;
 
+import com.example.db.Message;
 import com.example.db.User;
+import com.example.message.MessageRepository;
 import com.example.user.UserRepository;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -31,6 +33,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @SpringBootApplication(exclude = { CassandraDataAutoConfiguration.class })
 @EnableWebFlux
@@ -40,11 +44,13 @@ public class SpringWebfluxDemoApplication {
 
     private final ReactiveCassandraTemplate cassandraTemplate;
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
 
     public SpringWebfluxDemoApplication(final ReactiveCassandraTemplate cassandraTemplate,
-            final UserRepository userRepository) {
+            final UserRepository userRepository, final MessageRepository messageRepository) {
         this.cassandraTemplate = cassandraTemplate;
         this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
     }
 
     public static void main(String[] args) {
@@ -62,10 +68,19 @@ public class SpringWebfluxDemoApplication {
                     .<List<User>>collect(ArrayList::new, List::add)
                     .log("user-creation")
                     .block();
+            final Stream<User> stream = IntStream.iterate(0, index -> (index + 1) % 2)
+                    .mapToObj(users::get);
             log.info("created users: {}", users);
             cassandraTemplate.selectOne(Query.query(Criteria.where("username").is("foo")), User.class)
                     .log("user-creation")
                     .block();
+            final List<Message> messages = Flux.fromStream(stream)
+                    .index().map(tuple -> Message.createNew(tuple.getT2(), String.format("message %d", tuple.getT1())))
+                    .take(30L)
+                    .log("message-creation")
+                    .switchMap(messageRepository::save)
+                    .collectList().block();
+            log.info("created messages: {}", messages);
         };
                 
     }
