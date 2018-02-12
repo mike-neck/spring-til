@@ -16,6 +16,7 @@
 package com.example.auth;
 
 import com.example.db.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -23,6 +24,7 @@ import java.util.Collection;
 
 import static java.util.stream.Collectors.toSet;
 
+@Slf4j
 public class AuthenticatedUser implements UserDetails {
 
     private final User user;
@@ -33,6 +35,7 @@ public class AuthenticatedUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        log.info("user authority: {}", user.getRoles());
         return user.getRoles()
                 .stream()
                 .<GrantedAuthority>map(userRole -> userRole::name)
@@ -55,17 +58,17 @@ public class AuthenticatedUser implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override

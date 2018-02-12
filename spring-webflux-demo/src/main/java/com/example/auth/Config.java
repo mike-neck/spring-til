@@ -18,7 +18,6 @@ package com.example.auth;
 import com.example.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.cassandra.core.ReactiveCassandraTemplate;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -28,11 +27,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebFluxSecurity
 public class Config {
 
-    private final ReactiveCassandraTemplate cassandraTemplate;
     private final UserRepository userRepository;
 
-    public Config(final ReactiveCassandraTemplate cassandraTemplate, final UserRepository userRepository) {
-        this.cassandraTemplate = cassandraTemplate;
+    public Config(final UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -47,4 +44,19 @@ public class Config {
     PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
+
+    // ロールの設定をすると 401 UnAuthorized になってしまう…
+//    @Bean
+//    SecurityWebFilterChain springSecurityFilterChain(final ServerHttpSecurity http) {
+//        return http.authorizeExchange()
+//                .pathMatchers(HttpMethod.GET, "/users/**").hasAuthority(UserRole.VIEW_OTHER_PROFILE.name())
+//                .pathMatchers(HttpMethod.POST, "/users/**").hasAuthority(UserRole.EDIT_OTHER_PROFILE.name())
+//                .pathMatchers(HttpMethod.PUT, "/users/**").hasAuthority(UserRole.EDIT_OTHER_PROFILE.name())
+//                .pathMatchers(HttpMethod.DELETE, "/users/**").hasAuthority(UserRole.EDIT_OTHER_PROFILE.name())
+//                .pathMatchers(HttpMethod.GET, "/me/**").hasAuthority(UserRole.VIEW_SELF_PROFILE.name())
+//                .pathMatchers(HttpMethod.POST, "/me/**").hasAuthority(UserRole.EDIT_SELF_PROFILE.name())
+//                .pathMatchers(HttpMethod.DELETE, "/me/**").hasAuthority(UserRole.EDIT_SELF_PROFILE.name())
+//            .and()
+//                .build();
+//    }
 }

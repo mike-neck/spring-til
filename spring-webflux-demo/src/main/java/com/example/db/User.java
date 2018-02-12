@@ -15,12 +15,15 @@
  */
 package com.example.db;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.data.cassandra.core.mapping.Indexed;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,12 +38,16 @@ public class User {
     @Indexed
     private final String username;
 
+    @JsonIgnore
     private final String password;
 
+    @JsonIgnore
     private final Set<UserRole> roles;
+
+    private final LocalDateTime created;
 
     public static User createNew(final String username, final String password) {
         final String id = UUID.randomUUID().toString();
-        return new User(id, username, password, UserRole.forNormalUser());
+        return new User(id, username, password, UserRole.forNormalUser(), LocalDateTime.now(ZoneId.of("UTC")));
     }
 }

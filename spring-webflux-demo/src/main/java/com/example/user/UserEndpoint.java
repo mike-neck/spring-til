@@ -40,7 +40,7 @@ public class UserEndpoint {
 
     @Bean
     RouterFunction<ServerResponse> userEndpointRouterFunction() {
-        return route(GET("/users/me"), this::me);
+        return route(GET("/me"), this::me);
     }
 
     private Mono<ServerResponse> me(final ServerRequest request) {
