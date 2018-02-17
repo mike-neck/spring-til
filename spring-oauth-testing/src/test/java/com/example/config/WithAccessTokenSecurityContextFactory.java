@@ -17,6 +17,9 @@ package com.example.config;
 
 import com.example.jpa.*;
 import com.example.oauth.Authentication;
+import com.example.repository.AccessTokenRepository;
+import org.mockito.MockingDetails;
+import org.mockito.Mockito;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -27,16 +30,32 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.mockito.Mockito.when;
+
 public class WithAccessTokenSecurityContextFactory implements WithSecurityContextFactory<WithAccessToken> {
+
+    private final AccessTokenRepository accessTokenRepository;
+
+    public WithAccessTokenSecurityContextFactory(final AccessTokenRepository accessTokenRepository) {
+        this.accessTokenRepository = accessTokenRepository;
+    }
 
     @Override
     public SecurityContext createSecurityContext(final WithAccessToken annotation) {
         final SecurityContext context = SecurityContextHolder.createEmptyContext();
         final GivenAccessToken accessToken = new GivenAccessToken(annotation);
         final OAuth2Authentication oauth2 = accessToken.oauth2();
+
+        final MockingDetails mockingDetails = Mockito.mockingDetails(accessTokenRepository);
+        if (mockingDetails.isMock()) {
+            when(accessTokenRepository.findByAccessToken(accessToken.accessToken))
+                    .thenReturn(Optional.of(accessToken.accessTokenEntity()));
+        }
+
         context.setAuthentication(oauth2);
         return context;
     }
@@ -54,7 +73,12 @@ public class WithAccessTokenSecurityContextFactory implements WithSecurityContex
         private final String applicationName;
         private final String redirectUrl;
 
+        private final long userId;
+        private final long applicationId;
+
         GivenAccessToken(final WithAccessToken accessToken) {
+            this.userId = accessToken.userId();
+            this.applicationId = accessToken.applicationId();
             this.accessToken = accessToken.accessToken();
             this.refreshToken = accessToken.refreshToken();
             this.scopes = Arrays.stream(accessToken.scope()).collect(Collectors.toSet());
@@ -77,15 +101,20 @@ public class WithAccessTokenSecurityContextFactory implements WithSecurityContex
         AccessTokenEntity accessTokenEntity() {
             final AccessTokenEntity accessTokenEntity = new AccessTokenEntity(user(), client(), accessToken, refreshToken, scopes);
             accessTokenEntity.setExpiration(expiration);
+            accessTokenEntity.setId(new AccessTokenId(applicationId, userId));
             return accessTokenEntity;
         }
 
         private ClientApplicationEntity client() {
-            return new ClientApplicationEntity(applicationName, redirectUrl);
+            final ClientApplicationEntity clientApplication = new ClientApplicationEntity(applicationName, redirectUrl);
+            clientApplication.setId(applicationId);
+            return clientApplication;
         }
 
         private UserEntity user() {
-            return new UserEntity(signature, username, "", authorities);
+            final UserEntity userEntity = new UserEntity(signature, username, "", authorities);
+            userEntity.setId(userId);
+            return userEntity;
         }
 
         private OAuth2Authentication oauth2() {

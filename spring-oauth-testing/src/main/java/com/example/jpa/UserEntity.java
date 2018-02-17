@@ -15,19 +15,21 @@
  */
 package com.example.jpa;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toSet;
+
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -43,9 +45,11 @@ public class UserEntity {
     @Column(nullable = false)
     private String username;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
+    @JsonIgnore
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "user_authorities")
     @Enumerated(EnumType.STRING)
@@ -63,6 +67,12 @@ public class UserEntity {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
+    }
+
+    public static UserEntity of(final long id, final String signature, final String username, final String password, final Date createdAt, final Date updatedAt,
+            final Authority... authorities) {
+        final Set<Authority> authoritySet = Arrays.stream(authorities).collect(toSet());
+        return new UserEntity(id, signature, username, password, authoritySet, createdAt, updatedAt);
     }
 
     @PrePersist

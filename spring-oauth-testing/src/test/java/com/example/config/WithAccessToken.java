@@ -29,7 +29,8 @@ import java.lang.annotation.Target;
 @WithSecurityContext(factory = WithAccessTokenSecurityContextFactory.class)
 public @interface WithAccessToken {
 
-    long userId() default 0L;
+    long userId() default 100L;
+    long applicationId() default 10000L;
     String username() default "";
     String signature() default "";
     Authority[] authorities() default {};
