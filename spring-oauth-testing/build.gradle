@@ -7,12 +7,14 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "org.asciidoctor:asciidoctor-gradle-plugin:1.5.3"
 	}
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'org.asciidoctor.convert'
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
@@ -25,6 +27,7 @@ repositories {
 
 ext {
 	springCloudVersion = 'Edgware.SR1'
+    snippetsDir = file("$buildDir/generated-snippets")
 }
 
 dependencies {
@@ -47,4 +50,13 @@ dependencyManagement {
 	imports {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
+}
+
+test {
+    outputs.dir(snippetsDir)
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    dependsOn test
 }

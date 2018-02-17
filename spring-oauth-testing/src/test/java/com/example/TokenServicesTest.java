@@ -23,6 +23,7 @@ import com.example.jpa.UserEntity;
 import com.example.repository.AccessTokenRepository;
 import com.example.repository.UserRepository;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,8 +44,17 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.Date;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -63,12 +74,16 @@ public class TokenServicesTest {
     @Autowired
     UserRepository userRepository;
 
+    @Rule
+    public JUnitRestDocumentation documentation = new JUnitRestDocumentation("build/generated-snippets");
+
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
+                .apply(documentationConfiguration(documentation))
                 .build();
     }
 
@@ -91,8 +106,21 @@ public class TokenServicesTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].user_id").value("test1"))
-                .andExpect(jsonPath("$[0].username").value("test-user"));
+                .andExpect(jsonPath("$[0].username").value("test-user"))
+                .andDo(document("users",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("[].user_id").description("ユーザーID"),
+                                fieldWithPath("[].username").description("ユーザー名"),
+                                fieldWithPath("[].since").description("アカウント作成日")
+                        ),
+                        requestHeaders(
+                                headerWithName("Authorization").description("OAuth2 Bearer アクセストークン")
+                        )
+                        ));
+                
     }
 
     @EnableResourceServer
