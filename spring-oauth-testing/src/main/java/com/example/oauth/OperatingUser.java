@@ -22,6 +22,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,20 +33,29 @@ public class OperatingUser implements UserDetails {
     private final String name;
     private final String signature;
     private final Set<Authority> authorities;
+    private final Date created;
+    private final Date updated;
 
     public OperatingUser(final UserEntity user) {
-        this(user.getId(), user.getUsername(), user.getSignature(), user.getAuthorities());
+        this(user.getId(), user.getUsername(), user.getSignature(), user.getAuthorities(), user.getCreatedAt(), user.getUpdatedAt());
     }
 
-    private OperatingUser(final Long userId, final String name, final String signature, final Set<Authority> authorities) {
+    private OperatingUser(final Long userId, final String name, final String signature, final Set<Authority> authorities, final Date created,
+            final Date updated) {
         this.userId = userId;
         this.signature = signature;
         this.authorities = authorities;
         this.name = name;
+        this.created = created;
+        this.updated = updated;
     }
 
     public Long getUserId() {
         return userId;
+    }
+
+    public UserEntity asUserEntity() {
+        return new UserEntity(userId, signature, name, null, authorities, created, updated);
     }
 
     @Override

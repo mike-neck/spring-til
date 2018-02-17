@@ -114,6 +114,8 @@ public class WithAccessTokenSecurityContextFactory implements WithSecurityContex
         private UserEntity user() {
             final UserEntity userEntity = new UserEntity(signature, username, "", authorities);
             userEntity.setId(userId);
+            userEntity.setCreatedAt(Date.from(OffsetDateTime.now().minusMonths(3L).toInstant()));
+            userEntity.setCreatedAt(Date.from(OffsetDateTime.now().minusMonths(1L).toInstant()));
             return userEntity;
         }
 
