@@ -33,6 +33,8 @@ ext {
 }
 
 dependencies {
+    compileOnly('org.projectlombok:lombok')
+    compile group: 'org.eclipse.collections', name: 'eclipse-collections', version: '9.1.0'
 	compile('org.springframework.boot:spring-boot-starter-webflux')
 	compile('org.springframework.statemachine:spring-statemachine-starter')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
