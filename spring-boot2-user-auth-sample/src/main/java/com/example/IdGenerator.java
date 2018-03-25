@@ -22,6 +22,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class IdGenerator {
@@ -29,6 +30,8 @@ public class IdGenerator {
     private static final LocalDateTime BASE = LocalDateTime.of(2018, Month.JANUARY, 1, 1, 1);
 
     private final Clock clock;
+
+    private final AtomicInteger lowerBound = new AtomicInteger(0);
 
     public IdGenerator(final Clock clock) {
         this.clock = clock;
@@ -38,7 +41,7 @@ public class IdGenerator {
         final LocalDateTime now = LocalDateTime.now(clock);
         final Duration duration = Duration.between(BASE, now);
         final int high = (int) duration.getSeconds();
-        final int low = duration.getNano();
+        final int low = lowerBound.incrementAndGet();
         final byte[] hbs = ByteBuffer.allocate(4).putInt(high).array();
         final byte[] lbs = ByteBuffer.allocate(4).putInt(low).array();
         final byte[] bytes = new byte[8];

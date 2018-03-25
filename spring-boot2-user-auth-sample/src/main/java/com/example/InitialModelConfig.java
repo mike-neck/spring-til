@@ -28,6 +28,8 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.map.mutable.primitive.LongObjectHashMap;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,6 +39,8 @@ import static org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples.pair;
 
 @Configuration
 public class InitialModelConfig {
+
+    private final Logger logger = LoggerFactory.getLogger(InitialModelConfig.class);
 
     private final IdGenerator idGenerator;
     private final MutableMap<String, UserAccount> userAccounts;
@@ -52,6 +56,7 @@ public class InitialModelConfig {
                 UserAccount.of(idGenerator.generateLong(), "baz", "baz-pass", "BAZ[beta]", Role.USER, Role.BETA_USER),
                 UserAccount.of(idGenerator.generateLong(), "qux", "qux-pass", "qux-pass", Role.USER)
         );
+        logger.info("users: {}", users);
         userAccounts = users.groupByUniqueKey(UserAccount::getLoginId);
         final MutableList<TalkRoom> talkRoomList = Lists.mutable.of(
                 TalkRoom.of(idGenerator.generateLong(), "all users", "talk room which contains all users."),
@@ -59,6 +64,7 @@ public class InitialModelConfig {
                 TalkRoom.of(idGenerator.generateLong(), "beta users", "beta users")
         );
         talkRoomList.forEach(talkRoom -> talkRooms.put(talkRoom.getId(), talkRoom));
+        logger.info("talkRooms: {}", talkRooms);
         final LocalDateTime now = LocalDateTime.now();
         talkRoomMembers = Lists.mutable.of(
                 pair(0, IntLists.mutable.of(0, 1, 2, 3)),
@@ -66,6 +72,7 @@ public class InitialModelConfig {
                 pair(2, IntLists.mutable.of(1, 2))
         ).collect(p -> Tuples.pair(talkRoomList.get(p.getOne()), p.getTwo().collect(users::get)))
                 .flatCollect(p -> p.getTwo().collect(ua -> new TalkRoomMember(p.getOne().getId(), ua.getId(), now)));
+        logger.info("users: {}", talkRoomMembers);
     }
 
     @Bean
