@@ -18,10 +18,20 @@ package com.example;
 public class Team {
 
   private final Long id;
-  private final Long identifier;
+  private final String identifier;
   private final String name;
 
-  @Override
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Team{");
+        sb.append("id=").append(id);
+        sb.append(", identifier=").append(identifier);
+        sb.append(", name='").append(name).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
   public boolean equals(final Object o) {
     if (this == o) return true;
     if (!(o instanceof Team)) return false;
@@ -43,7 +53,7 @@ public class Team {
     return id;
   }
 
-  public Long getIdentifier() {
+  public String getIdentifier() {
     return identifier;
   }
 
@@ -51,23 +61,23 @@ public class Team {
     return name;
   }
 
-  private Team(final Long id, final Long identifier, final String name) {
+  private Team(final Long id, final String identifier, final String name) {
     this.id = id;
     this.identifier = identifier;
     this.name = name;
   }
 
-  public static Team of(final long id, final long identifier, final String name) {
+  public static Team of(final long id, final String identifier, final String name) {
     return new Team(id, identifier, name);
   }
 
   public static class Line {
-    private Long identifier;
+    private String identifier;
     private String name;
 
     public Line() {}
 
-    public Line(final Long identifier, final String name) {
+    public Line(final String identifier, final String name) {
       this.identifier = identifier;
       this.name = name;
     }
@@ -76,11 +86,11 @@ public class Team {
       return new Team(id, identifier, name);
     }
 
-    public Long getIdentifier() {
+    public String getIdentifier() {
       return identifier;
     }
 
-    public void setIdentifier(final Long identifier) {
+    public void setIdentifier(final String identifier) {
       this.identifier = identifier;
     }
 
