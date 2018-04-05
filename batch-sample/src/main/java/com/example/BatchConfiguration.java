@@ -29,13 +29,14 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.FileSystemResourceLoader;
 
 @Configuration
 @EnableBatchProcessing
 public class BatchConfiguration {
 
-  private static final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
+  private static final Logger logger = LoggerFactory.getLogger("teamJob");
 
   private final JobBuilderFactory jobBuilderFactory;
   private final StepBuilderFactory stepBuilderFactory;
@@ -95,6 +96,7 @@ public class BatchConfiguration {
         .build();
   }
 
+  @Order(400)
   @Bean
   Job teamJob(final Step teamStep, final TeamJobExecutionListener jobExecutionListener) {
     return jobBuilderFactory
